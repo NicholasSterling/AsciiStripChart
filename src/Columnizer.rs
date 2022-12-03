@@ -1,21 +1,11 @@
-pub fn reply(v: Vec<i32>) -> bool {
-    let any = |f: fn(&i32) -> bool| {
-        v.iter().any(f)
-    };
-    any(|x| *x > 2) && !any(|x| *x > 9)
-}
-/*
 //use num_traits::{Num,Float};
-use num_traits::{Float,int};
+use num_traits::{Float,Int};
 
 /// Maps values to raw column numbers (which can be out of bounds).
 pub trait Columnizer<Value> {
     fn get_raw_col(self: &Self, at: Value) -> isize;
 }
 
-pub struct StripChart<Value, Mark> {
-    columnizer: Columnizer<Value>,
-}
 
 pub struct RoundingColumnizer<Value> {
     lo: Value,
@@ -31,7 +21,6 @@ impl<Value: Float> RoundingColumnizer<Value> {
         RoundingColumnizer { lo: lo - w, col_factor, max_col }
     }
 }
-
 impl<Value: Float> Columnizer<Value> for RoundingColumnizer<Value>
     where i32: std::convert::From<Value> {
     /// Gets the raw integer column number corresponding to the specified value.
@@ -41,72 +30,6 @@ impl<Value: Float> Columnizer<Value> for RoundingColumnizer<Value>
     }
 }
 
-//===========================================================
-
-pub struct AsciiStripChart<'a> {
-    lo: f32,
-    col_factor: f32,
-    max_col: usize,
-    buf: &'a mut [u8],
-}
-
-impl<'a> AsciiStripChart<'a> {
-    /// Returns an AsciiStripChart that maps values within a given range
-    /// into the specified buffer.
-    pub fn new(buf: &mut [u8], lo: f32, hi: f32) -> AsciiStripChart {
-        let max_col = buf.len() - 1;
-        assert!(max_col > 0);
-        let total_width = hi - lo;
-        let w = (total_width / (max_col as f32)) * 0.5;
-        let col_factor = 0.5 / w;
-        AsciiStripChart { lo: lo - w, col_factor, max_col, buf }
-    }
-    /// Temporarily puts a mark at the specified f32 location and then
-    /// calls the specified function.
-    pub fn with(self: &mut Self, mark: u8, at: f32, f: fn(&mut Self) -> ()) {
-        let (i, ch) = self.get_col(mark, at);
-        let old = self.buf[i];
-        self.buf[i] = ch;
-        f(self);
-        self.buf[i] = old;
-    }
-    /// Puts a mark at the specified f32 location.
-    pub fn set(self: &mut Self, mark: u8, at: f32) -> u8 {
-        let (i, ch) = self.get_col(mark, at);
-        let old = self.buf[i];
-        self.buf[i] = ch;
-        old
-    }
-    /// Given an f32 location and a mark to put there, this function returns
-    /// an integer column number in the range 0...max_col and a mark to put there.
-    /// The returned mark is the input mark unless the value is too low or too high,
-    /// in which cases < or > is returned, respectively.
-    pub fn get_col(self: &Self, mark: u8, at: f32) -> (usize, u8) {
-        let col = self.get_raw_col(at);
-        if col < 0 {
-            (0, b'<')
-        } else {
-            let col = col as usize;
-            if col > self.max_col {
-                (self.max_col, b'>')
-            } else {
-                (col, mark)
-            }
-        }
-    }
-    /// Gets the raw integer column number corresponding to the specified f32 location.
-    /// Note that this column number can be negative or > max_col; you have to check.
-    pub fn get_raw_col(self: &Self, at: f32) -> isize {
-        ((at - self.lo) * self.col_factor) as isize
-    }
-    // pub fn col_fn(self: &mut Self) -> impl Fn(f32) -> isize {
-    //     let total_width = self.hi - self.lo;
-    //     let w = (total_width / (self.max_col as f32)) * 0.5;
-    //     let x_lo = self.lo - w;
-    //     let col_factor = 0.5 / w;
-    //     move |x: f32| -> isize { ((x - x_lo) * col_factor) as isize }
-    // }
-}
 
 #[cfg(test)]
 mod tests {
@@ -188,4 +111,3 @@ mod tests {
     }
 
 }
-*/

@@ -1,0 +1,74 @@
+
+Initially just make a stripchart that contains a 100-byte buffer and prints to stdout.
+Take a bkg char and use it to clear the buffer each time.  Have to decide what we mean
+by the mapping, e.g. [0,10) or (0,10] or (0,10) or [-0.5, 10.5)
+
+
+We want to be able to vary the following aspects of the stripchart:
+
+ * The type of input data: f32, f64, i32, i16, u16, Foo, etc.
+
+ * The mapping from input values to columns:
+    * rounded to column centers
+    * anchored at left/right edge of some column
+    * linear, log2, logn, ...  (although this could be done on top of the stripchart)
+
+ * How out-of-bounds values are handled.
+
+ * What happens with the output.
+    * print to stdout as scrolling text
+    * wrap-around display (more efficient than scrolling), e.g. with curses
+       * horizontal or vertical
+    * light some LEDs (the various marks might be colors), simulate with curses
+       * different bar for each mark
+
+* Whether the characters are ASCII, UTF-8, ...
+
+
+A Columnizer trait with fn get_raw_col() to convert a value to an isize column number.
+However, that probably wouldn't work for integer values, because you would want the range
+of integer values to be large, while the number of columns will certainly be small.
+That means that you'd have to divide -- or perhaps right-shift -- the value by some factor
+rather than multiplying, which you would want to do for floating point values.
+Wait -- have a multiplier, but right-shift by 16.  E.g.
+   col = (value * 237) >> 16
+But again, this makes the code different for integers and floats.  Do we want to separate
+the numerical part of the value handling from the [0,10) part?
+
+
+A Canvas trait with fn set(mark, col) and with(mark, col, fn) would abstract the output.
+That could be genericized over the mark type.
+
+Where would out-of-bound values be handled?  Not by the columnizer.  Not by the canvas.
+Either by the StripChart implementor or by a separate abstraction.
+
+Rounding
+[  0     1     2     3     4     5     6     7     8     9    10  )
+|  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |
+
+Left Anchored
+0     1     2     3     4     5     6     7     8     9     )
+|  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |
+
+Right Anchored
+(     1     2     3     4     5     6     7     8     9    10
+|  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |  .  |
+
+
+Abstractions:
+ * Canvas: displays the chart
+ * Columnizer: converts input values to columns
+
+
+
+
+Optimization: curried multiply that chooses the most efficient function one time.
+
+
+I don't think we need this:
+/// Keeps track of what characters are where on the chart.
+// pub trait Canvas {
+//     type Mark;
+//     fn  set(self: &mut Self, mark: Self::Mark, at: isize) -> Self::Mark;
+//     fn with(self: &mut Self, mark: Self::Mark, at: isize, f: fn(&mut Self) -> ());
+// }

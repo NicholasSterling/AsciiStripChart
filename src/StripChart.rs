@@ -1,12 +1,5 @@
-pub fn reply(v: Vec<i32>) -> bool {
-    let any = |f: fn(&i32) -> bool| {
-        v.iter().any(f)
-    };
-    any(|x| *x > 2) && !any(|x| *x > 9)
-}
-/*
 //use num_traits::{Num,Float};
-use num_traits::{Float,int};
+use num_traits::{Float,Int};
 
 /// Maps values to raw column numbers (which can be out of bounds).
 pub trait Columnizer<Value> {
@@ -188,4 +181,3 @@ mod tests {
     }
 
 }
-*/

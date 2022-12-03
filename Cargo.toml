@@ -5,3 +5,4 @@ authors = ["Nicholas Sterling <Nicholas.Sterling@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+num-traits = "0.2"
